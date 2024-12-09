@@ -2,16 +2,20 @@
 #define HISTORY_H
 
 #include <vector>
+#include <deque>
 
 #include "op.h"
 #include "Rope/Rope.h"
-#include "Stack/Stack.h"
+#include "List/List.h"
 
 class History {
 public:
     static const std::size_t hist_size;
     
-    History() = default;
+    History() : _current_index{-1} {}
+
+    List get_list();
+    int  get_current_index();
 
     void add(op oper, Rope &rope);
     void execute(op oper, Rope &rope);
@@ -19,12 +23,9 @@ public:
     void undo(Rope &rope);
     void redo(Rope &rope);
 
-    Stack get_undo();
-    Stack get_redo();
-
 private:
-    Stack _undo;
-    Stack _redo;
+    List _ops;
+    int  _current_index;
 };
 
 #endif

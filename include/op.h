@@ -19,6 +19,8 @@ struct op {
           end{end_}
     {}
 
+    bool operator==(const op& another) const;
+
     std::string to_string();
 };
 

@@ -107,39 +107,25 @@ void GUI::showMainMenu(GLFWwindow *window)
     ImGui::SetNextWindowSize(stackWindowSize); // Set size to half the screen
     ImGui::Begin("Undo / Redo", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    // Split window into two columns for each stack
-    ImGui::Columns(2, "Stacks");
-    ImGui::SetColumnWidth(0, stackWindowSize.x * 0.5f);
-    ImGui::SetColumnWidth(1, stackWindowSize.x * 0.5f);
+    std::vector<op> ops_vec = _history.get_list().to_vector();
 
-    Stack undo = _history.get_undo();
-    Stack redo = _history.get_redo();
+    // Show Difference List
+    ImGui::Text("Difference List:");
+    if (!ops_vec.empty()) {
+        int current_index = _history.get_current_index();
+        // std::cout << "Current pointer to oper is " << current_index << std::endl;
 
-    // Show first stack
-    ImGui::Text("Undo:");
-    if (!undo.empty()) {
-        std::vector<op> undoOps = undo.to_vector();
-        for (std::size_t i = 0, size = undoOps.size(); i < size; ++i) {
-            ImGui::BeginChild("Separator1", ImVec2(stackWindowSize.x * 0.5f, 0));
+        // we need to output this vector in deque-like view, so we
+        // will show elements of vector in reverse order
+        for (int i = ops_vec.size() - 1; i >= 0; --i) {
+            ImGui::BeginChild("Separator0", ImVec2(0, 0));
             ImGui::Separator();
-            ImGui::Text(undoOps[i].to_string().c_str());
-            ImGui::Separator();
-            ImGui::EndChild();
-        }
-    } else {
-        ImGui::Text("Empty");
-    }
 
-    ImGui::NextColumn();
+            if (i == current_index)
+                ImGui::Text("-> %s (%d)", ops_vec[i].to_string().c_str(), i + 1);
+            else
+                ImGui::Text("%s (%d)", ops_vec[i].to_string().c_str(), i + 1);
 
-    // Show second stack
-    ImGui::Text("Redo:");
-    if (!redo.empty()) {
-        std::vector<op> redoOps = redo.to_vector();
-        for (std::size_t i = 0, size = redoOps.size(); i < size; ++i) {
-            ImGui::BeginChild("Separator2", ImVec2(stackWindowSize.x * 0.5f, 0));
-            ImGui::Separator();
-            ImGui::Text(redoOps[i].to_string().c_str());
             ImGui::Separator();
             ImGui::EndChild();
         }

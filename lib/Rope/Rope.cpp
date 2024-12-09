@@ -35,7 +35,7 @@ std::size_t Rope::length(void) const
 char Rope::at(std::size_t index) const
 {
 	if(this->_root == nullptr)
-		throw std::out_of_range(E_OOB_ROPE);
+		throw std::invalid_argument(E_OOB_ROPE);
 	return (*(this->_root))[index];
 }
 
@@ -45,9 +45,10 @@ std::string Rope::substr(std::size_t start, std::size_t len) const
 	std::size_t full_length = this->length();
 	
 	if (start > full_length || start + len > full_length)
-		throw std::out_of_range(E_OOB_ROPE);
+		throw std::invalid_argument(E_OOB_ROPE);
 	
-	return this->_root->substr(start, len);
+	return this->to_string().substr(start, len);
+	//return this->_root->substr(start, len);
 }
 
 // Insert the given std::string into the Rope, beginning at the specified index (i)
@@ -57,7 +58,7 @@ void Rope::insert(std::size_t i, const std::string& str) { this->insert(i, Rope(
 void Rope::insert(size_t i, const Rope& r)
 {
 	if (this->length() < i) {
-		throw std::invalid_argument(E_OOB_ROPE);
+		throw std::out_of_range(E_OOB_ROPE);
 	} else {
 		Rope tmp = Rope(r);
 		std::pair<RNode_uptr, RNode_uptr> orig_rope_split = split_at(std::move(this->_root), i);

@@ -4,15 +4,32 @@
 
 const std::size_t History::hist_size = 25;
 
-Stack History::get_undo() { return _undo; }
-Stack History::get_redo() { return _redo;}
+List History::get_list() { return _ops; }
+
+int  History::get_current_index() { return _current_index; }
 
 void History::add(op oper, Rope &rope)
 {
-    _undo.push(oper);
-    _redo.clear();
+    // if we undo all changes
+    if (_current_index == -1)
+        _ops.clear();
+    // if we not at end of list -> cut entire right part
+    else if (_ops.size() != 0 && _current_index < _ops.size() - 1)
+        _ops.cut_back(_current_index + 1);
 
+    // add new operation at end of deque
+    _ops.push_back(oper);
+
+    // change rope with given oper
     execute(oper, rope);
+
+    // check for change history size
+    if (_ops.size() > hist_size) {
+        _ops.pop_front();
+        --_current_index;
+    }
+    
+    ++_current_index;
 }
 
 void History::execute(op oper, Rope &rope)
@@ -33,25 +50,24 @@ void History::execute(op oper, Rope &rope)
 
 void History::undo(Rope &rope)
 {
-    if (_undo.empty())
+    if (_ops.empty() || _current_index <= -1)
         return;
     
-    op oper = _undo.top();
-    _undo.pop();
+    op oper = _ops.at(_current_index);
+    --_current_index;
 
-    _redo.push(oper);
     oper.type = (oper.type == op_type::INSERT) ? (op_type::DELETE) : (op_type::INSERT);
     execute(oper, rope);
 }
 
 void History::redo(Rope &rope)
 {
-    if (_redo.empty())
+    if (_ops.empty() || _current_index == _ops.size() - 1)
         return;
 
-    op oper = _redo.top();
-    _redo.pop();
+    ++_current_index;
+    op oper = _ops.at(_current_index);
+    //++_current_index;
 
-    _undo.push(oper);;
     execute(oper, rope);
 }

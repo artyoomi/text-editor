@@ -73,17 +73,18 @@ include(FetchContent)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Libraries
+
 # Rope DS
 add_library(Rope STATIC lib/Rope/RNode.cpp lib/Rope/Rope.cpp)
 
-# Stack DS
-add_library(Stack STATIC lib/Stack/Stack.cpp)
-target_link_libraries(Stack op)
+# List DS
+add_library(List STATIC lib/List/List.cpp)
+target_link_libraries(List op)
 
 add_library(op STATIC lib/op.cpp)
 
 add_library(History STATIC lib/History.cpp)
-target_link_libraries(History Stack Rope)
+target_link_libraries(History List Rope)
 
 find_package(OpenGL REQUIRED)
 
@@ -91,21 +92,30 @@ add_library(GUI STATIC lib/GUI.cpp)
 target_link_libraries(GUI OpenGL::GL glfw imgui Rope History)
 
 add_executable(${CMAKE_PROJECT_NAME} lib/main.cpp)
-# target_link_libraries(${CMAKE_PROJECT_NAME} Rope)
-
-# Link libraries
 target_link_libraries(${CMAKE_PROJECT_NAME} GUI)
 
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-# enable_testing()
+# -----------------------
+# TESTING
+# -----------------------
+enable_testing()
 
-# add_executable(Rope_test tests/Rope_test.cpp)
-# target_link_libraries(Rope_test Rope gtest gtest_main)
+add_executable(Rope_test tests/Rope_test.cpp)
+target_link_libraries(Rope_test Rope gtest gtest_main)
 
-# add_executable(Stack_test tests/Stack_test.cpp)
-# target_link_libraries(Stack_test Stack gtest gtest_main)
+add_executable(op_test tests/op_test.cpp)
+target_link_libraries(op_test op gtest gtest_main)
 
-#include(GoogleTest)
-#gtest_discover_tests(Rope_test)
+add_executable(List_test tests/List_test.cpp)
+target_link_libraries(List_test List gtest gtest_main)
+
+add_executable(History_test tests/History_test.cpp)
+target_link_libraries(History_test History gtest gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(Rope_test)
+gtest_discover_tests(op_test)
+gtest_discover_tests(List_test)
+gtest_discover_tests(History_test)
